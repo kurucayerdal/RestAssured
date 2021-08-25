@@ -21,8 +21,7 @@ public class ZippoTest {
                 //test ve extract işlemleri
                 .then()
 
-
-        ;
+                ;
     }
 
     @Test
@@ -38,7 +37,6 @@ public class ZippoTest {
                 .log().body() //sadece body'i yazıyor
                 .log().all() //tüm response'u yazıyor
                 .statusCode(200) //status kontrolü - hata olmadığında bir şey yazmıyor!
-
                ;
     }
 
@@ -91,6 +89,20 @@ public class ZippoTest {
                 .then()
                 .log().body()
                 .body("places[0].state", equalTo("California"))
+                .statusCode(200)
+        ;
+
+    }
+
+    @Test
+    public void checkJsonHasItem(){
+
+        given()
+                .when()
+                .get("http://api.zippopotam.us/us/90210")
+                .then()
+                .log().body()
+                .body("places.state", hasItem("California")) // tüm state'lerin içinde California var mı diye arıyor
                 .statusCode(200)
         ;
 
