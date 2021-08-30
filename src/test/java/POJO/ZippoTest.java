@@ -1,5 +1,5 @@
+package POJO;
 
-import POJO.Location;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -232,8 +232,9 @@ public class ZippoTest {
 
     @BeforeClass
     public void setup() {
-        baseURI = "http://api.zippopotam.us";    //restAssured kendi statik değişkeni tanımlı değer atanıyor.
-
+        baseURI = "http://api.zippopotam.us";    //baseURI: restAssured'un kendi statik değişkeni, tanımlı değer atanıyor.
+                                                 // gidilecek ana url'i yazdık,böylece başında http olmayan get()metodlarının
+                                                // başına direkt olarak bu url gelecek
         requestSpecification = new RequestSpecBuilder()
                 .log(LogDetail.URI)
                 .setAccept(ContentType.JSON)
