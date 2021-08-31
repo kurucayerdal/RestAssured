@@ -11,7 +11,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -217,6 +219,20 @@ public class Deneme {
         System.out.println("location.getCountryAbbreviation() = " + location.getCountryAbbreviation());
         System.out.println("location.getPostCode() = " + location.getPostCode());
         System.out.println("location = " + location);
+
+    }
+
+    @Test
+    public  void testX(){
+
+        List<Integer> sayi= Arrays.asList(5,2,7,1);
+
+        List<Integer> toplananSayi= sayi.stream().map( i -> i+2).distinct().collect(Collectors.toList());
+
+        System.out.println("toplananSayi = " + toplananSayi);
+
+        Arrays.asList("burak","kutbay","java").stream().forEach(System.out::println);
+
 
     }
 
