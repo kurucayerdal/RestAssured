@@ -2,10 +2,13 @@ package goRest;
 
 import goRest.model.User;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -13,7 +16,7 @@ import static org.hamcrest.Matchers.*;
 public class GoRestUsersTests {
 
 
-    @Test
+    @Test(enabled = false) //bu testi devre dışı bıraktık
     public void getUsers() {
 
         List<User> userList = given()
@@ -74,7 +77,7 @@ public class GoRestUsersTests {
         return randomString + "@gmail.com";
     }
 
-    @Test
+    @Test(enabled = false)
     public void getUserById() {
 
         createUser();
@@ -89,7 +92,7 @@ public class GoRestUsersTests {
     }
 
 
-    @Test(dependsOnMethods = "createUser")
+    @Test(dependsOnMethods = "createUser",priority = 1)
     public void getUserById_2() {
 
         given()
@@ -103,14 +106,14 @@ public class GoRestUsersTests {
         ;
     }
 
-    @Test(dependsOnMethods = "createUser")
+    @Test(dependsOnMethods = "createUser",priority = 2)
     public void updateUserById() {
 
         String isim = "ediz bahtiyar";
 
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
-                .contentType(ContentType.JSON)
+                .contentType(ContentType.JSON) //body'e bir değer gönderdiğimiz zaman mutlaka formatını seçmemiz lazım
                 .body("{\"name\":\"" + isim + "\"}")
                 .pathParam("userId", userId)
                 .when()
@@ -120,9 +123,176 @@ public class GoRestUsersTests {
                 .statusCode(200)
                 .body("data.name", equalTo(isim))
         ;
+    }
 
+    @Test(dependsOnMethods = "createUser",priority = 3)
+    public void deleteUserById() {
+
+        given()
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .pathParam("userId", userId)
+                .when()
+                .delete("https://gorest.co.in/public/v1/users/{userId}")
+                .then()
+                .statusCode(204)
+        ;
+    }
+
+    @Test(dependsOnMethods = "deleteUserById")
+    public void deleteUserByIdNegatifTest() {
+
+        given()
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .pathParam("userId", userId)
+                .when()
+                .delete("https://gorest.co.in/public/v1/users/{userId}")
+                .then()
+                .log().body()
+                .statusCode(404)
+        ;
+    }
+
+    /*
+    istediğim veriyi istediğim tipte nasıl alırım? ama bu extract işleminde amaç bu.
+{
+    "meta": {  meta
+        "pagination": {   pagination
+            "total": 1633,  -> .extract.path("meta.pagination.total")   -> int total , ototatik int dönüşümü kendisi de int olduğu için.
+                            -> .extract.jsonPath.getInt("meta.pagination.total")  -> int e dönüştürüp öyle int e eşitliyor.
+            "pages": 82,
+            "page": 1,
+            "limit": 20,
+            "links": {     link
+                "previous": null,
+                "current": "https://gorest.co.in/public/v1/users?page=1",
+                "next": "https://gorest.co.in/public/v1/users?page=2"
+            }
+        }
+    },
+    "data": [ User
+        {
+            "id": 1685,
+            "name": "Qmzn",        -> bütün nameleri almak için    extract.path("data.name") -> List<String> değişkene atarken çevirecek
+                                   -> extract.jsonPath().getList("data.name") -> list e çevirip öyle vermek olacaktı
+            "email": "qvjsulha@gmail.com",
+            "gender": "male",
+            "status": "active"
+        },
+        {
+            "id": 1687,
+            "name": "Mavie Test 3",
+            "email": "test3@email.com",
+            "gender": "female",
+            "status": "active"
+        }
+   ]
+}
+
+
+-> Bütün veriyi bir toplu olarak için -> 4 tane class yazman lazım ve -> extract.as(Genel.class)
+
+public class Genel
+{
+     Meta meta;
+     List<User> data;
+}
+
+genel.getMeta().getPagination().getTotal    -> bütün verilere bu şekilde ulaşabiliyorum.
+-------------------------------------------------------------------------------------------------
+
+jsonPath esas nerede devreye giriyor, yukarıdakilerde neyi yapamıyoruz ki jsonPath e ihtiyacımız oluyor ?
+
+
+1- Sadece Linkleri bir Class tipinde elde etmek istiyorum ?
+
+         extract.jsonPath.getObject("meta.pagination.links", Link.class)
+
+         bu sorunu jsonPath çözebiliyor.Diğer classları yazmama gerek olmadan
+
+
+2- tip dönüşümünü veriyi alırken yapması da bir avantaj.
+
+  tek bir değişken almak için
+        path veya jsonPath kullanılabilir
+
+        tüm veriye ihtiyacın varsa .as(Genel.class)
+        kullanılacak
+
+        verinin içinden bir bölümü bir clasa atmak
+        istersen jsonPath kullanılacak
+     */
+    @Test
+    public void responseSample(){
+
+        Response donenSonuc=  //dönen sonuçların hepsi bir değişkene atıldı
+                given()
+                        .when()
+                        .get("https://gorest.co.in/public/v1/users")
+                        .then()
+                        .log().body()
+                        .extract().response();
+
+        //Şimdi lazım olan istediklerimizi tekrar request yapmadan tek tek alabiliriz.
+        List<User> userList=donenSonuc.jsonPath().getList("data",User.class);
+        int total=donenSonuc.jsonPath().getInt("meta.pagination.total");
+        int limit=donenSonuc.jsonPath().getInt("meta.pagination.limit");
+        User firstUser= donenSonuc.jsonPath().getObject("data[0]",User.class);
+
+        System.out.println("userList = " + userList);
+        System.out.println("total = " + total);
+        System.out.println("limit = " + limit);
+        System.out.println("firstUser = " + firstUser);
 
     }
+
+    @Test
+    public void createUserBodyMap() {
+
+        Map<String,String> newUser=new HashMap<>();//verileri istersek Map olarak gönderebiliriz.ContentType.JSON onu json a çeviriyor
+        newUser.put("name","orhan");
+        newUser.put("gender","male");
+        newUser.put("email",randomEmail());
+        newUser.put("status","active");
+
+        userId = given()
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .contentType(ContentType.JSON)
+                .body(newUser) //body'nin içine direk map'i yazıyoruz.
+                .when()
+                .post("https://gorest.co.in/public/v1/users")
+                .then()
+                .log().body()
+                .statusCode(201)
+                .contentType(ContentType.JSON)
+                .extract().jsonPath().getInt("data.id")
+        ;
+        System.out.println("userId = " + userId);
+    }
+
+    @Test
+    public void createUserBodyObject() {
+
+        User newUser=new User(); //bir nesne  oluşturup onu da gönderebiliriz, yine json a çevriliyor.
+        newUser.setName("suphi");
+        newUser.setGender("male");
+        newUser.setEmail(randomEmail());
+        newUser.setStatus("active");
+
+        userId = given()
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .contentType(ContentType.JSON)
+                .body(newUser) //body'nin içine direk User nesnesini yazıyoruz.
+                .log().body()
+                .when()
+                .post("https://gorest.co.in/public/v1/users")
+                .then()
+                .statusCode(201)
+                .contentType(ContentType.JSON)
+                .extract().jsonPath().getInt("data.id")
+        ;
+        System.out.println("userId = " + userId);
+    }
+
 
 }
 
