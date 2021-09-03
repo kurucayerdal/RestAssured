@@ -189,7 +189,7 @@ public class GoRestUsersTests {
 }
 
 
--> Bütün veriyi bir toplu olarak için -> 4 tane class yazman lazım ve -> extract.as(Genel.class)
+-> Bütün veriyi toplu olarak almak için -> 4 tane class yazman lazım ve -> extract.as(Genel.class)
 
 public class Genel
 {
@@ -291,6 +291,33 @@ jsonPath esas nerede devreye giriyor, yukarıdakilerde neyi yapamıyoruz ki json
                 .extract().jsonPath().getInt("data.id")
         ;
         System.out.println("userId = " + userId);
+    }
+
+
+    @Test()
+    public void takeAUserName() {
+
+        String isim =   given()
+                        .when()
+                        .get("https://gorest.co.in/public/v1/users")
+                        .then()
+                        .log().body()
+                        .extract().path("data.find{it.id==36}.name");  //id'si 36 olan elemanın name'ini alıyoruz.
+
+        System.out.println("isim = " + isim);
+    }
+
+    @Test()
+    public void takeAGroupOfUser() {
+
+        List<String> list =
+                given()
+                        .when()
+                        .get("https://gorest.co.in/public/v1/users")
+                        .then()
+                        .extract().path("data.findAll{it.id<60}.name")//id'si 60'tan küçük olanları List olarak aldık
+                ;
+        System.out.println("isim = " + list);
     }
 
 
