@@ -248,116 +248,71 @@ public class Deneme {
         System.out.println("userID = " + userID);
     }
 
-    public String randomEmail(){
+    public String randomEmail() {
 
-        String randomString= RandomStringUtils.randomAlphabetic(8).toLowerCase();
-        return randomString+"@hotmail.com";
+        String randomString = RandomStringUtils.randomAlphabetic(8).toLowerCase();
+        return randomString + "@hotmail.com";
     }
 
-    @Test(dependsOnMethods = {"test14"},priority = 1)
-    public void test15(){
+    @Test(dependsOnMethods = {"test14"}, priority = 1)
+    public void test15() {
 
         given()
-                .pathParam("userID",userID)
+                .pathParam("userID", userID)
                 .when()
                 .get("https://gorest.co.in/public/v1/users/{userID}")
                 .then()
-                .body("data.id",equalTo(userID))
-                ;
+                .body("data.id", equalTo(userID))
+        ;
         System.out.println("userID = " + userID);
     }
 
-    @Test(dependsOnMethods ={"test14"},priority = 2)
-    public void test16(){
+    @Test(dependsOnMethods = {"test14"}, priority = 2)
+    public void test16() {
 
-        String name= "Ahmet Hamdi Tanpınar";
+        String name = "Ahmet Hamdi Tanpınar";
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
                 .contentType(ContentType.JSON)
-                .body("{\"name\":\""+name+"\"}")
-                .pathParam("userID",userID)
+                .body("{\"name\":\"" + name + "\"}")
+                .pathParam("userID", userID)
                 .when()
                 .put("https://gorest.co.in/public/v1/users/{userID}")
                 .then()
                 .log().body()
                 .statusCode(200)
-                .body("data.name",equalTo(name))
-                ;
+                .body("data.name", equalTo(name))
+        ;
     }
 
-    @Test(dependsOnMethods = {"test14"},priority = 3)
-    public void test17(){
+    @Test(dependsOnMethods = {"test14"}, priority = 3)
+    public void test17() {
 
         given()
-                .header("Authorization","Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
-                .pathParam("userID",userID)
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .pathParam("userID", userID)
                 .when()
                 .delete("https://gorest.co.in/public/v1/users/{userID}")
                 .then()
                 .statusCode(204)
                 .log().body()
-                ;
-    }
-
-    @Test(dependsOnMethods = {"test17"},priority = 4)
-    public void test18(){
-
-        given()
-                .header("Authorization","Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
-                .pathParam("userID",userID)
-                .when()
-                .delete("https://gorest.co.in/public/v1/users/{userID}")
-                .then()
-                .statusCode(404)
-                .log().body()
         ;
     }
 
-    @Test
-    public void test19() {
+    @Test(dependsOnMethods = {"test17"}, priority = 4)
+    public void test18() {
 
         given()
-                .header("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZENoYW5nZSI6ZmFsc2UsInVzZXJfbmFtZSI6InJpY2hmaWVsZC5lZHUiLCJzY29wZSI6WyJvcGVuaWQiXSwiZXhwIjoxNjMwNjYyNDc2LCJpYXQiOjE2MzA2NjIxNzYsImF1dGhvcml0aWVzIjpbIlJPTEVfRVZFUllPTkUiLCJST0xFX01BTkFHRVIiLCJST0xFX1NDSE9PTF9BRE1JTiIsIlJPTEVfTU9ERVJBVE9SIiwiUk9MRV9URUNIX1NVUFBPUlQiLCJST0xFX1RFTkFOVF9BRE1JTiJdLCJqdGkiOiJIbFFzS2RFNFdMWUVBYXAtMkhMakpJTmhUelEiLCJjbGllbnRfaWQiOiJ3ZWJfYXBwIiwidXNlcm5hbWUiOiJyaWNoZmllbGQuZWR1In0.Z4e0rhvZj6zKC3mKjAoOq8zhva6ahei9nG-C9UVk1AXvq-BLyYqWkuUP1AoqQqkEqMLeAlsWVBcQ7hpvXRU5U-zchw7lOSWKlPeLHa9fyxjc7rqttft3LrXsfKbUSV3kTUXLWr3W7MDBY69k7hV_1qP07gi_7nGj2L2ZlnvYfhm282xmnqBjZGrUupB63DOZFDtzFt73RbMVPVjEbx0NnBMIUkdw78BcuDeXTk-3vBNNVY4zaa3gN8kNzSHnYb5FjCI2DWswSJui_87z7BsBs6fhmMsnk4pecOKnUY_x147z7THd3qGzu9RHrzNvoxxtr9yBvRtakDv4OzbWiFFanw")
+                .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .pathParam("userID", userID)
                 .when()
-                .get("https://demo.mersys.io/school-service/api/countries")
+                .delete("https://gorest.co.in/public-api/users/{userID}")
                 .then()
-                .log().body()
-        ;
-    }
-    @Test
-    public void test20() {
-
-        given()
-                .contentType(ContentType.JSON)
-                .body("{\"username\": \"richfield.edu\",\"password\": \"Richfield2020!\"}")
-                .when()
-                .post("https://demo.mersys.io/auth/login")
-                .then()
-                .log().body()
                 .statusCode(200)
+                .log().body()
+                .body("code", equalTo(404))
         ;
     }
-
-    @Test
-    public void test21() {
-
-
-
-
-
-        List<String> countryListUI= given()
-                .header("Authorization","Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZENoYW5nZSI6ZmFsc2UsInVzZXJfbmFtZSI6InJpY2hmaWVsZC5lZHUiLCJzY29wZSI6WyJvcGVuaWQiXSwiZXhwIjoxNjMwNjY1NzgyLCJpYXQiOjE2MzA2NjU0ODIsImF1dGhvcml0aWVzIjpbIlJPTEVfRVZFUllPTkUiLCJST0xFX01BTkFHRVIiLCJST0xFX1NDSE9PTF9BRE1JTiIsIlJPTEVfTU9ERVJBVE9SIiwiUk9MRV9URUNIX1NVUFBPUlQiLCJST0xFX1RFTkFOVF9BRE1JTiJdLCJqdGkiOiJkQXFaYXQ0Z0gwUEpzMTFvalo5VXYzeWlEWXMiLCJjbGllbnRfaWQiOiJ3ZWJfYXBwIiwidXNlcm5hbWUiOiJyaWNoZmllbGQuZWR1In0.Xw4Dh17KavOMqaOF-bfZiq5Y7u0h-7IL3gHJe6VdzwREaGmWyzl0bzelzjjuGheaCpj7r6mtaYTyYuZvXpDkU4FqXsXwsy3Tn3zxYAYRE2CLUiCpeixdFU2Ea4Rjx59_0-XcIyakUJIREfpulKmTNW9nHm3WDQrYQyUSZB_ZOl80mpPKeoxs62I5NTjmeK2dY7jt2crI-dt8FxoSIf2Rei-_4Q6Um4cQeuVw4TfzEfm-sKMSnaEpzkDdELwBfrjTURlLcGvurxkzw7TFNj1CW9ZmZgUIZyTW3i65NhtNvnGjoJFDq1-_DL7r3_c26-ioFb_6yqlUqq8bTttNKW-HdA")
-                .when()
-                .get("https://demo.mersys.io/school-service/api/countries")
-                .then()
-                .extract().jsonPath().getList("name")
-        ;
-        for (String s: countryListUI)
-        {
-            System.out.println("s = " + s);
-        }
-    }
-
 
 
 }

@@ -138,17 +138,19 @@ public class GoRestUsersTests {
         ;
     }
 
-    @Test(dependsOnMethods = "deleteUserById")
+    @Test(priority = 4)
     public void deleteUserByIdNegatifTest() {
 
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
+                .contentType(ContentType.JSON)
                 .pathParam("userId", userId)
                 .when()
-                .delete("https://gorest.co.in/public/v1/users/{userId}")
+                .delete("https://gorest.co.in/public-api/users/{userId}")
                 .then()
                 .log().body()
-                .statusCode(404)
+                .statusCode(200)
+                .body("code",equalTo(404))
         ;
     }
 
@@ -242,7 +244,6 @@ jsonPath esas nerede devreye giriyor, yukarıdakilerde neyi yapamıyoruz ki json
         System.out.println("total = " + total);
         System.out.println("limit = " + limit);
         System.out.println("firstUser = " + firstUser);
-
     }
 
     @Test
