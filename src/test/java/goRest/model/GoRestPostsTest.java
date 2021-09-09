@@ -106,7 +106,7 @@ public class GoRestPostsTest {
         posts.setTitle(title);
         posts.setUser_id(87);
 
-        response=
+        postId=
                 given()
                         .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
                         .contentType(ContentType.JSON)
@@ -116,17 +116,14 @@ public class GoRestPostsTest {
                         .then()
                         .log().body()
                         .statusCode(201)
-                        .extract().response()
-        ;
-        String returnTitle= response.jsonPath().getString("data.title");
-        String returnBody= response.jsonPath().getString("data.body");
-        postId=response.jsonPath().getInt("data.id");
+                        .body("data.title", equalTo(title))
+                        .body("data.body",equalTo(sendBody))
+                        .extract().jsonPath().getInt("data.id");
 
-        Assert.assertEquals(sendBody,returnBody);
-        Assert.assertEquals(title,returnTitle);
+        System.out.println("postId = " + postId);
     }
 
-    @Test(dependsOnMethods = "createAPost")
+    @Test(dependsOnMethods = "createAPost",priority = 2)
     public void getAUserPost() {
 
 // Task 5 : Create edilen Post ı get yaparak id sini kontrol ediniz.
@@ -142,7 +139,7 @@ public class GoRestPostsTest {
     }
 
 
-    @Test(dependsOnMethods = {"createAPost"},priority = 2)
+    @Test(dependsOnMethods = {"createAPost"},priority = 3)
     public void updateAPost() {
 
         // Task 6 : Create edilen Post un body sini güncelleyerek, bilgiyi kontrol ediniz.
@@ -168,7 +165,7 @@ public class GoRestPostsTest {
         Assert.assertEquals(sendBody,returnBody);
     }
 
-    @Test(dependsOnMethods = {"createAPost"},priority = 3)
+    @Test(dependsOnMethods = {"createAPost"},priority = 4)
     public void deleteAPost() {
 
                 given()
@@ -181,16 +178,18 @@ public class GoRestPostsTest {
         ;
     }
 
-    @Test(dependsOnMethods = {"createAPost"},priority = 4)
+    @Test(dependsOnMethods = {"createAPost"},priority = 5)
     public void deleteAPostNegatif() {
 
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
                 .pathParam("postId",postId)
                 .when()
-                .delete("/posts/{postId}")
+                .delete("https://gorest.co.in/public-api/posts/{postId}")
                 .then()
-                .statusCode(404)
+                .body("code",equalTo(404))
+                .body("data.message",containsString("Resource not found"))
+                .statusCode(200)  //  https://gorest.co.in/public-api/users/{userID}
         ;
     }
 
