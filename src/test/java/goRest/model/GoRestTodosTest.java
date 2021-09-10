@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.*;
@@ -43,7 +44,6 @@ public class GoRestTodosTest {
 
         // Task 1: https://gorest.co.in/public/v1/todos  Api sinden dönen verilerdeki
         //en son todonun hangi userId ye ait olduğunu bulunuz
-
 
         List<Todos> todosList =
                 given()
@@ -103,6 +103,70 @@ public class GoRestTodosTest {
         System.out.println("maxId = " + maxId);
     }
 
+    @Test
+    public void getBiggestTodoIdDoWhile() {
+
+        // Task 2: https://gorest.co.in/public/v1/todos  Api sinden dönen verilerdeki
+        //         en büyük id ye sahip todonun id sini BÜTÜN PAGE leri dikkate alarak bulunuz.
+
+        int maxId = 0, totalPage = 0, page = 1;
+
+        do {
+            Response response =
+                    given()
+                            .param("page", page)
+                            .when()
+                            .get("/todos")
+                            .then()
+                            .extract().response();
+
+            if (page == 1) {
+                totalPage = response.jsonPath().getInt("meta.pagination.pages");
+            }
+            List<Todos> todosList = response.jsonPath().getList("data", Todos.class);
+
+            for (int j = 1; j < todosList.size(); j++) {
+                if (todosList.get(j).getId() > maxId) {
+                    maxId = todosList.get(j).getId();
+                }
+            }
+            page++;
+        } while (page <= totalPage);
+
+        System.out.println("maxId = " + maxId);
+    }
+
+    @Test
+    public void getAllTodoIds() {
+
+        // Task 3 : https://gorest.co.in/public/v1/todos  Api sinden
+        // dönen bütün bütün sayfalardaki bütün idleri tek bir Liste atınız.
+
+        List<Integer> allToDoList = new ArrayList<>();
+
+        int totalPage = 0, page=1;
+
+        do {
+            Response response =
+                    given()
+                            .param("page", page)
+                            .when()
+                            .get("/todos")
+                            .then()
+                            .extract().response();
+
+            if (page == 1) {
+                totalPage = response.jsonPath().getInt("meta.pagination.pages");
+            }
+            List<Integer> idList = response.jsonPath().getList("data.id");
+
+            allToDoList.addAll(idList);
+
+            page++;
+        } while (page <= totalPage);
+        System.out.println("allToDoList = " + allToDoList);
+    }
+
 
     @Test
     public void getAllTodos() {
@@ -155,6 +219,8 @@ public class GoRestTodosTest {
 
     @Test(priority = 1)
     public void createATodo() {
+// Task 4 : https://gorest.co.in/public/v1/todos  Api sine
+        // 1 todo Create ediniz.
 
         String title = "Chaque matin on a une réunion a 9h15.";
         String dueOn = "2021-09-11T00:00:00.000+05:30";
@@ -163,6 +229,7 @@ public class GoRestTodosTest {
         todos.setTitle(title);
         todos.setStatus(status);
         todos.setDue_on(dueOn);
+        todos.setUser_id(46);
 
         todoId =
                 given()
@@ -170,7 +237,7 @@ public class GoRestTodosTest {
                         .contentType(ContentType.JSON)
                         .body(todos)
                         .when()
-                        .post(" /users/46/todos")
+                        .post("/todos")
                         .then()
                         .log().body()
                         .statusCode(201)
@@ -184,7 +251,7 @@ public class GoRestTodosTest {
 
     @Test(dependsOnMethods = {"createATodo"}, priority = 2)
     public void getTodo() {
-
+        // Task 5 : Create edilen ToDoyu get yaparak id sini kontrol ediniz.
         given()
                 .pathParam("todoId", todoId)
                 .when()
@@ -199,11 +266,12 @@ public class GoRestTodosTest {
     public void updateATodo() {
 
         String title = "How can we handle the difficulties?";
+        String status= "completed";
 
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
                 .contentType(ContentType.JSON)
-                .body("{\n" + " \"title\": \"" + title + "\",\n" + "\"status\": \"pending\"" + "}")
+                .body("{\n" +"\"title\": \""+title+"\",\n" +"\"status\": \""+status+"\"\n" +"}")
                 .pathParam("todoId", todoId)
                 .when()
                 .log().uri()
@@ -211,11 +279,13 @@ public class GoRestTodosTest {
                 .then()
                 .log().body()
                 .statusCode(200)
-                .body("data.title", equalTo(title));
+                .body("data.title", equalTo(title))
+                .body("data.status",equalTo(status));
     }
 
     @Test(dependsOnMethods = {"createATodo"}, priority = 4)
     public void deleteATodo() {
+// Task 7 : Create edilen ToDoyu siliniz. Status kodu kontorl ediniz 204
 
         given()
                 .header("Authorization", "Bearer 636144d160083b1ed3acb97f4192dc601314b4d4ebd93a270c328bd3b61cebdf")
