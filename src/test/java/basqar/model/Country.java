@@ -1,4 +1,4 @@
-package deneme.mersys;
+package basqar.model;
 
 public class Country {
 
