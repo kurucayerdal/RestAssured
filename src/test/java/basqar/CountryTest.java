@@ -128,7 +128,7 @@ public class CountryTest {
         ;
     }
 
-    @Test(dependsOnMethods = {"deleteCountry"})
+    @Test(enabled = false,dependsOnMethods = {"deleteCountry"})
     public void deleteCountryNegative() {
 
         given()
