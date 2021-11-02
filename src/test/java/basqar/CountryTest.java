@@ -143,6 +143,6 @@ public class CountryTest {
 
 
     public String randomString(int count) {
-        return RandomStringUtils.randomAlphabetic(count).toUpperCase();
+        return RandomStringUtils.randomAlphabetic(count).toLowerCase();
     }
 }
