@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Jenkins Basqar Test Suite">
+    <test name="Jenkins Example Test">
+        <groups>
+            <run>
+                <include name="Smoke"></include>
+            </run>
+        </groups>
+        <classes>
+            <class name="deneme.Deneme">
+            </class>
+        </classes>
+    </test>
+</suite>

@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.*;
 
 public class Deneme {
 
-    @Test
+    @Test(groups = "Smoke")
     public void test1() {
 
         given()
